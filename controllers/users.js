@@ -1,0 +1,154 @@
+const asyncHandler = require('../middleware/async');
+const User = require('../models/User');
+
+//Register
+exports.registerUser = asyncHandler(async (req, res) => {
+    // Validate req body
+    const { error } = User.validateUser(req.body);
+    if (error) {
+        return res.status(400).send(error.details[0].message);
+    }
+
+    // Check if user already exists
+    let user = await User.findOne({
+        email: req.body.email,
+    });
+    if (user) {
+        return res.status(400).send(`User with ${req.body.email} email already exisits!`);
+    }
+
+    const { username, email, password, role } = req.body;
+
+    // Create/Register new user
+    user = await User.create({
+        username,
+        email,
+        password,
+        role,
+    });
+
+    sendTokenResponse(user, 200, res);
+});
+
+//login
+exports.loginUser = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    //check password and email in form
+    if (!email || !password) {
+        return res.status(400).send('Please enter email and password!');
+    }
+
+    //Check if user exist
+    const user = await User.findOne({
+        email,
+    }).select('+password');
+
+    if (!user) {
+        return res.status(401).send('Invalid credentials');
+    }
+
+    // Check if password matches
+    const isMatch = await user.matchPassword(password);
+
+    if (!isMatch) {
+        return res.status(401).send('Invalid credentials');
+    }
+
+    sendTokenResponse(user, 200, res);
+});
+
+
+
+//get one user
+exports.getUser = asyncHandler(async (req, res, next) => {
+  
+        const user = await User.findById(req.params.id);
+
+        res.status(200).json({
+            success: true,
+            data: user,
+        });
+
+});
+
+//get all users -admin only
+
+exports.getAllUsers = asyncHandler(async (req, res, next) => {
+
+    const users = await User.find();
+
+    res.status(200).json({
+        success: true,
+        data: users,
+    });
+});
+
+//delete user --admin
+exports.deleteUser = asyncHandler(async(req,res,next) =>{
+    try {
+        const user = await User.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({
+            success: true,
+            data: user,
+        });
+    } catch {
+        res.status(404).send('Not found');
+    }
+
+});
+
+
+//update (put) user
+
+exports.updateUserInfo = asyncHandler(async(req, res, next) => {
+
+    try {
+        const user = await User.findByIdAndUpdate(req.params.id);
+
+        res.status(200).json({
+            success: true,
+            data: user,
+        });
+    } catch {
+        res.status(404).send('User not found');
+    }
+
+});
+
+//get cuerrently logged user
+
+exports.getMe = asyncHandler(async(req, res, next) => {
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({
+        success: true,
+        data: user,
+    });
+});
+
+// Get token from model, create and send response
+const sendTokenResponse = (user, statusCode, res) => {
+    console.log('Create token');
+    const token = user.getSignedJWT();
+
+    const options ={
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE  * 24 * 60 * 60 * 1000),
+        httpOnly: true
+    }
+
+    res.status(statusCode)
+        .cookie('token', token, options)
+        .json({
+        success: true,
+        token,
+    });
+};
+
+//forgot password
+//reset password
+//update user details?
+//admin users?
+//uploadu user photo?
+//tasks for today ( date to finish to model)
