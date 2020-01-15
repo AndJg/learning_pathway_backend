@@ -1,5 +1,4 @@
 const express = require('express');
-const asyncHandler = require('../middleware/async');
 const router = express.Router();
 
 const {checkToken, authorize} = require('../middleware/auth');
