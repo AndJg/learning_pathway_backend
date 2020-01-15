@@ -25,6 +25,9 @@ exports.getAllTasks = asyncHandler(async(req, res, next) =>{
            const task = await Task.findById(req.params.id);
            if(!task){
                res.status(404).send('Task not found');}
+
+
+
      
             res.status(200).json({
                 success: true,
@@ -64,8 +67,8 @@ exports.getAllTasks = asyncHandler(async(req, res, next) =>{
    exports.updateTask = asyncHandler(async(req,res,next) => {
 
        
-           let task = Task.findById(req.params.id);
-                console.log(user.id);
+           let task = await Task.findById(req.params.id);
+                console.log(task.user);
             if(!task){
                 res.status(404).send('Task with the given id was not found.');
             }
