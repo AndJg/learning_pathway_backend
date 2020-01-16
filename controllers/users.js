@@ -93,23 +93,7 @@ exports.deleteUser = asyncHandler(async (req, res, next) => {
     }
 });
 
-//update (put) user
-
-exports.updateUserInfo = asyncHandler(async (req, res, next) => {
-    try {
-        const user = await User.findByIdAndUpdate(req.params.id);
-
-        res.status(200).json({
-            success: true,
-            data: user,
-        });
-    } catch {
-        res.status(404).send('User not found');
-    }
-});
-
 //get cuerrently logged user
-
 exports.getMe = asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.user.id);
 
@@ -119,12 +103,40 @@ exports.getMe = asyncHandler(async (req, res, next) => {
     });
 });
 
-//reset password
+//User update Username
+exports.updateUsername = asyncHandler(async (req, res, next) => {
+    const username = { username: req.body.username };
+
+    const user = await User.findByIdAndUpdate(req.user.id, username, {
+        new: true,
+    });
+
+    res.status(200).json({
+        success: true,
+        data: user,
+    });
+});
+
+//User update email
+exports.updateEmail = asyncHandler(async (req, res, next) => {
+    const email = { email: req.body.email };
+
+    const user = await User.findByIdAndUpdate(req.user.id, email, {
+        new: true,
+    });
+
+    res.status(200).json({
+        success: true,
+        data: user,
+    });
+});
+
+//User change password
 exports.changePassword = asyncHandler(async (res, req, next) => {
     const user = await User.findById(req.user.id).select('+password');
 
     if (!(await user.matchPassword(req.body.currentPassword))) {
-        return res.status(401).send('Wrong password!'); 
+        return res.status(401).send('Wrong password!');
     }
 
     user.password = req.body.newPassword;
