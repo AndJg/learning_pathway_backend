@@ -28,12 +28,17 @@ const taskSchema = new mongoose.Schema(
         },
         intervals: {
             type: Number,
-            enum: [25, 30,35],
-            default: 25
+            enum: [25, 30, 35],
+            default: 25,
         },
         notes: {
             type: String,
             default: 'No notes yet',
+        },
+        path: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Path',
+            required: true,
         },
         user: {
             type: mongoose.Schema.ObjectId,
