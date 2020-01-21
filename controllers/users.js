@@ -1,5 +1,7 @@
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 //Register
 exports.registerUser = asyncHandler(async (req, res) => {
@@ -54,6 +56,11 @@ exports.loginUser = asyncHandler(async (req, res) => {
     if (!isMatch) {
         return res.status(401).send('Invalid credentials');
     }
+
+    if(!user.isVerified){
+        return res.status(401).send('Account not verified!');
+    }
+
 
     sendTokenResponse(user, 200, res);
 });
