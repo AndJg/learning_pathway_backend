@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now()
+    },
+    isVerified:{
+        type: Boolean,
+          default: false
     }
 },{
     versionKey: false
@@ -81,12 +85,24 @@ userSchema.methods.getSignedJWT = function() {
         }
     );
 };
+userSchema.methods.generateEmailConfirmToken = function() {
+    return jwt.sign(
+        {
+            id: this._id,
+        },
+        process.env.EMAIL_SECRET,
+        {
+          expiresIn: process.env.EMAIL_EXPIRE
+        }
+    );
 
+};
 
 // Match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
+
 
 
 module.exports = mongoose.model('User', userSchema);

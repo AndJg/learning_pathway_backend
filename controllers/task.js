@@ -16,7 +16,10 @@ exports.getAllTasks = asyncHandler(async (req, res, next) => {
 //get one task by id
 exports.getOneTask = asyncHandler(async (req, res, next) => {
    
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findById(req.params.id).populate({
+        path: 'Path',
+        select: 'name'
+    });
     if (!task) {
         res.status(404).send('Task not found');
     }

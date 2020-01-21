@@ -26,6 +26,8 @@ const pathSchema = new mongoose.Schema(
         },
     },
     {
+        toJSON: { virtuals: true},
+        toObject: { virtuals: true },
         versionKey: false,
     }
 );
@@ -57,3 +59,5 @@ pathSchema.virtual('tasks',
     foreignField: 'path',
     justOne: false
 });
+
+module.exports = mongoose.model('Path', pathSchema);
