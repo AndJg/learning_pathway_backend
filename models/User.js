@@ -3,6 +3,7 @@ const Joi = require('@hapi/joi');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+
 const userSchema = new mongoose.Schema({
     username:{
         type: String,
@@ -84,18 +85,6 @@ userSchema.methods.getSignedJWT = function() {
             expiresIn: process.env.JWT_EXPIRE,
         }
     );
-};
-userSchema.methods.generateEmailConfirmToken = function() {
-    return jwt.sign(
-        {
-            id: this._id,
-        },
-        process.env.EMAIL_SECRET,
-        {
-          expiresIn: process.env.EMAIL_EXPIRE
-        }
-    );
-
 };
 
 // Match user entered password to hashed password in database
