@@ -8,6 +8,7 @@ const userController = require('../controllers/users');
 router.get('/',checkToken, authorize('admin'), userController.getAllUsers);
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
+router.get('/logout', userController.logout);
 router.get('/me', checkToken, userController.getMe);
 router.put('/me/changepassword', checkToken, userController.changePassword);
 router.put('/changeusername', checkToken, userController.updateUsername);

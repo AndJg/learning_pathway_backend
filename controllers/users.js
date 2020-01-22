@@ -1,8 +1,6 @@
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
-const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-
 //Register
 exports.registerUser = asyncHandler(async (req, res) => {
     // Validate req body
@@ -19,8 +17,10 @@ exports.registerUser = asyncHandler(async (req, res) => {
         return res.status(400).send('Email already in use!');
     }
 
+
     const { username, email, password, role } = req.body;
 
+    
     // Create/Register new user
     user = await User.create({
         username,
@@ -57,13 +57,28 @@ exports.loginUser = asyncHandler(async (req, res) => {
         return res.status(401).send('Invalid credentials');
     }
 
-    if(!user.isVerified){
-        return res.status(401).send('Account not verified!');
-    }
+    // if(!user.isVerified){
+    //     return res.status(401).send('Account not verified!');
+    // }
 
 
     sendTokenResponse(user, 200, res);
 });
+
+//Logout
+exports.logout = asyncHandler(async (req, res, next) => {
+    res.cookie('token', 'none', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+      });
+    
+
+    res.status(200).json({
+        success: true,
+        data: {}
+    });
+});
+
 
 //get one user
 exports.getUser = asyncHandler(async (req, res, next) => {

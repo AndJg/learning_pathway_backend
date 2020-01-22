@@ -15,7 +15,7 @@ exports.getAllPaths = asyncHandler(async(req,res,next) => {
 
 //Get one path
 exports.getPath = asyncHandler(async(req,res,next) => {
-    const path = Path.findByIdI(req.params.id);
+    const path = await Path.findById(req.params.id);
 
     if (!path) {
         res.status(404).send('path not found');
@@ -71,7 +71,7 @@ exports.updatePath = asyncHandler(async(req,res, next) => {
         res.status(404).send('path with the given id was not found.');
     }
 
-    if (path.user.toString() !== req.user.id || user.role !== 'admin') {
+    if (path.user.toString() !== req.user.id) {
         res.status(401).send('User not authorized to update path!');
     }
 
