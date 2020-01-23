@@ -15,5 +15,6 @@ router.put('/changeusername', checkToken, userController.updateUsername);
 router.put('/changeemail', checkToken, userController.updateEmail);
 router.get('/:id',checkToken, userController.getUser);
 router.delete('/:id',checkToken, authorize('admin'), userController.deleteUser);
+router.post('/confirmation/:token', userController.confirmUser);
 
 module.exports = router;

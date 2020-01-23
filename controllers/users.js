@@ -1,5 +1,6 @@
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 //Register
 exports.registerUser = asyncHandler(async (req, res) => {
@@ -29,7 +30,29 @@ exports.registerUser = asyncHandler(async (req, res) => {
         role,
     });
 
+    // get the user email from? params?
+
+    sendEmail(user, req.body.email);
+
+
     sendTokenResponse(user, 200, res);
+});
+
+exports.confirmUser = asyncHandler(async (req,res) => {
+   
+    const token = req.params.token;
+    const decoded = jwt.verify(token, process.env.EMAIL_SECRET);
+
+        console.log(decoded);
+        console.log();
+ 
+  const user = await User.findById(decoded.id);
+
+    res.status(200).json({
+        success: true,
+        data: user,
+    });
+
 });
 
 //login
@@ -183,6 +206,44 @@ const sendTokenResponse = (user, statusCode, res) => {
             success: true,
             token,
         });
+};
+
+const sendEmail = async (user, email) =>{
+    
+    //send email with tokenSS
+
+ const token = user.getRegisterToken();
+ console.log(token);
+ const url =  `http://localhost:3000/api/users/confirmation/${token}`;
+
+    //1.get jwt token from user model
+    let transporter = nodemailer.createTransport({
+        // host: process.env.SMTP_HOST,
+        // port: process.env.SMTP_PORT,
+        // secure: false, // true for 465, false for other ports
+        // auth: {
+        //   user: process.env.SMTP_EMIAL, // generated ethereal user
+        //   pass: process.env.SMTP_PASSWORD // generated ethereal password
+        // }
+        host: "smtp.mailtrap.io",
+        port: 2525,
+        secure: false,
+        auth: {
+            user: "5ce1dfa73443cb",
+            pass: "05a843a8df1942"
+        }
+      });
+    //2.set transporter
+    let info = await transporter.sendMail({
+        from: process.env.FROM_EMAIL, // sender address
+        to: email, // list of receivers
+        subject: process.env.FROM_NAME, // Subject line
+        // text: "Hello world?", // plain text body
+        html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`,
+      });
+    //3.send mail with defined transport object
+
+    console.log("Message sent: %s", info.messageId);
 };
 
 //forgot password
